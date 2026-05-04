@@ -1,0 +1,18 @@
+[
+  {
+    "nome": "Cabo de Cobre 10mm",
+    "fator": 0.095
+  },
+  {
+    "nome": "Perfil de Aço U 2 polegadas",
+    "fator": 1.58
+  },
+  {
+    "nome": "Tubo PVC 25mm",
+    "fator": 0.125
+  },
+  {
+    "nome": "Barra Chata Alumínio",
+    "fator": 0.54
+  }
+]
