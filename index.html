@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Materiais - Logística</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; background-color: #f4f4f9; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #333; font-size: 1.2rem; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9rem; }
+        select, input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .info { margin-top: 15px; padding: 10px; background: #e7f3ff; border-left: 4px solid #2196F3; font-size: 0.85rem; }
+        .resultado { margin-top: 20px; font-weight: bold; color: #d32f2f; text-align: center; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Conversor de Materiais</h2>
+    
+    <label for="material">Material:</label>
+    <select id="material" onchange="calcular()">
+        <option value="">Carregando materiais...</option>
+    </select>
+
+    <div id="relacao" class="info">
+        Relação Direta:<br>
+        1 kg = -- m<br>
+        1 m = -- kg
+    </div>
+
+    <label for="peso">Peso Total (kg):</label>
+    <input type="number" id="peso" placeholder="Digite o peso" oninput="converterPesoParaMetro()">
+
+    <label for="metro">Comprimento (metros):</label>
+    <input type="number" id="metro" placeholder="Digite a metragem" oninput="converterMetroParaPeso()">
+    
+    <div id="aviso" class="resultado"></div>
+</div>
+
+<script>
+    const select = document.getElementById('material');
+    const relacaoDiv = document.getElementById('relacao');
+    const inputPeso = document.getElementById('peso');
+    const inputMetro = document.getElementById('metro');
+
+    // Busca o arquivo materiais.json na mesma pasta do GitHub
+    async function carregarDados() {
+        try {
+            const resposta = await fetch('materiais.json'); // Caminho local para GitHub Pages
+            const texto = await resposta.text();
+            const linhas = texto.split('\n');
+            
+            select.innerHTML = '<option value="">Selecione um material</option>';
+            
+            for (let i = 1; i < linhas.length; i++) {
+                const linha = linhas[i].trim();
+                if (linha) {
+                    const partes = linha.split(',');
+                    if (partes.length >= 2) {
+                        const fator = parseFloat(partes[partes.length - 1]);
+                        const nome = partes.slice(0, partes.length - 1).join(',').trim();
+                        
+                        if (!isNaN(fator)) {
+                            const option = document.createElement('option');
+                            option.value = fator;
+                            option.textContent = nome;
+                            select.appendChild(option);
+                        }
+                    }
+                }
+            }
+        } catch (erro) {
+            console.error("Erro ao carregar banco de dados:", erro);
+            select.innerHTML = '<option>Erro ao carregar dados</option>';
+        }
+    }
+
+    function calcular() {
+        const fator = parseFloat(select.value);
+        if (fator) {
+            const mPorKg = (1 / fator).toFixed(2);
+            relacaoDiv.innerHTML = `Relação Direta:<br>1 kg = ${mPorKg} m<br>1 m = ${fator} kg`;
+            inputPeso.value = "";
+            inputMetro.value = "";
+        }
+    }
+
+    function converterPesoParaMetro() {
+        const fator = parseFloat(select.value);
+        if (fator && inputPeso.value) {
+            inputMetro.value = (parseFloat(inputPeso.value) / fator).toFixed(2);
+        }
+    }
+
+    function converterMetroParaPeso() {
+        const fator = parseFloat(select.value);
+        if (fator && inputMetro.value) {
+            inputPeso.value = (parseFloat(inputMetro.value) * fator).toFixed(2);
+        }
+    }
+
+    carregarDados();
+</script>
+
+</body>
+</html>
